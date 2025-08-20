@@ -2,20 +2,18 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <omp.h>
 
 #define MAX_FILAS 1100
 #define MAX_COLUMNAS 1100
 
-static double elapsed_seconds(struct timespec a, struct timespec b) {
-    return (b.tv_sec - a.tv_sec) + (b.tv_nsec - a.tv_nsec) / 1e9;
-}
 
 int main() {
     char mapa[MAX_FILAS][MAX_COLUMNAS];
     int filas = 0, columnas = 0;
     int i, j;
     int contador_serial = 0;
-    struct timespec t0, t1;
+    double inicio, fin;
 
     FILE *archivo = fopen("mapa.txt", "r");
     if (!archivo) {
@@ -36,7 +34,7 @@ int main() {
     fclose(archivo);
 
     // Iniciar medición del conteo
-    clock_gettime(CLOCK_MONOTONIC, &t0);
+    inicio = omp_get_wtime();
 
     for (i = 0; i < filas; i++) {
         for (j = 0; j < columnas; j++) {
@@ -48,9 +46,9 @@ int main() {
         }
     }
 
-    clock_gettime(CLOCK_MONOTONIC, &t1);
+    fin = omp_get_wtime();
 
-    double tiempo = elapsed_seconds(t0, t1);
+    double tiempo = fin - inicio;
     double speedup = 1.0;              // base serial
     double eficiencia = speedup / 1;   // 1 núcleo
 
